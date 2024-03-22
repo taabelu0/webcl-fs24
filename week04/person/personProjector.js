@@ -20,8 +20,9 @@ const bindTextInput = (textAttr, inputElement) => {
 
     // todo: the label property should be shown as a pop-over on the text element.
 
-    textAttr.getObs(LABEL).onChange(label => inputElement.setAttribute("title", label));
-
+    textAttr.getObs(LABEL).onChange(
+        label => inputElement.setAttribute("title", label)
+    );
 
 };
 
@@ -49,7 +50,10 @@ const personListItemProjector = (masterController, selectionController, rootElem
 
     // todo: when a line in the master view is clicked, we have to set the selection
 
-    rootElement.onclick = _ => selectionController.setSelectedPerson(person);
+    deleteButton.onclick = _ => masterController.removePerson(person);
+    firstnameInputElement.onclick = _ => selectionController.setSelectedPerson(person);
+    lastnameInputElement.onclick = _ => selectionController.setSelectedPerson(person);
+
 
     
 
@@ -64,29 +68,31 @@ const personListItemProjector = (masterController, selectionController, rootElem
         rootElement.removeChild(deleteButton);
         rootElement.removeChild(firstnameInputElement);
         rootElement.removeChild(lastnameInputElement);
-        // todo: what to do with selection when person was removed?
-        
-        //remove the selection of the current person
+
+        if (selectionController.getSelectedPerson() === person) {
+            selectionController.clearSelection();
+        }
 
 
-        removeMe(); 
-    } );
+        removeMe();
+    });
+    
 
     rootElement.appendChild(deleteButton);
     rootElement.appendChild(firstnameInputElement);
     rootElement.appendChild(lastnameInputElement);
     // todo: what to do with selection when person was added?
 
-    masterController.onPersonAdd( (addedPerson, addMe) => {
-        if (addedPerson !== person) return;
-        selectionController.onPersonAdded(() => {
-            if (selectionController.getSelectedPerson() === person) {
-                selectionController.clearSelection();
-            }
-        });
+    masterController.onPersonAdd((addedPerson, addMe) => {
+
+
+        selectionController.setSelectedPerson(addedPerson);
+
         addMe();
-    } );
-    
+    });
+
+
+
 };
 
 const personFormProjector = (detailController, rootElement, person) => {
@@ -107,16 +113,17 @@ const personFormProjector = (detailController, rootElement, person) => {
     const firstnameInputElement = divElement.querySelector("#firstname");
     bindTextInput(person.firstname, firstnameInputElement);
 
-
-
+    const lastnameInputElement = divElement.querySelector("#lastname");
+    bindTextInput(person.lastname, lastnameInputElement);
 
     // todo: bind label values
 
     const firstnameLabelElement = divElement.querySelector("label[for=firstname]");
     person.firstname.getObs(LABEL).onChange(label => firstnameLabelElement.innerText = label);
 
-    const lastnameInputElement = divElement.querySelector("#lastname");
-    bindTextInput(person.lastname, lastnameInputElement);
+    const lastnameLabelElement = divElement.querySelector("label[for=lastname]");
+    person.lastname.getObs(LABEL).onChange(label => lastnameLabelElement.innerText = label);
+
 
     rootElement.firstChild.replaceWith(divElement); // react - style ;-)
 };
