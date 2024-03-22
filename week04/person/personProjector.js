@@ -20,6 +20,9 @@ const bindTextInput = (textAttr, inputElement) => {
 
     // todo: the label property should be shown as a pop-over on the text element.
 
+    textAttr.getObs(LABEL).onChange(label => inputElement.setAttribute("title", label));
+
+
 };
 
 const personTextProjector = textAttr => {
@@ -40,10 +43,15 @@ const personListItemProjector = (masterController, selectionController, rootElem
     deleteButton.innerHTML  = "&times;";
     deleteButton.onclick    = _ => masterController.removePerson(person);
 
-    const firstnameInputElement = null; // todo create the input fields and bind to the attribute props
-    const lastnameInputElement  = null;
+    // todo create the input fields and bind to the attribute props
+    const firstnameInputElement = personTextProjector(person.firstname);    
+    const lastnameInputElement  = personTextProjector(person.lastname);
 
     // todo: when a line in the master view is clicked, we have to set the selection
+
+    rootElement.onclick = _ => selectionController.setSelectedPerson(person);
+
+    
 
     selectionController.onPersonSelected(
         selected => selected === person
@@ -57,13 +65,28 @@ const personListItemProjector = (masterController, selectionController, rootElem
         rootElement.removeChild(firstnameInputElement);
         rootElement.removeChild(lastnameInputElement);
         // todo: what to do with selection when person was removed?
-        removeMe();
+        
+        //remove the selection of the current person
+
+
+        removeMe(); 
     } );
 
     rootElement.appendChild(deleteButton);
     rootElement.appendChild(firstnameInputElement);
     rootElement.appendChild(lastnameInputElement);
     // todo: what to do with selection when person was added?
+
+    masterController.onPersonAdd( (addedPerson, addMe) => {
+        if (addedPerson !== person) return;
+        selectionController.onPersonAdded(() => {
+            if (selectionController.getSelectedPerson() === person) {
+                selectionController.clearSelection();
+            }
+        });
+        addMe();
+    } );
+    
 };
 
 const personFormProjector = (detailController, rootElement, person) => {
@@ -81,7 +104,19 @@ const personFormProjector = (detailController, rootElement, person) => {
 
     // todo: bind text values
 
+    const firstnameInputElement = divElement.querySelector("#firstname");
+    bindTextInput(person.firstname, firstnameInputElement);
+
+
+
+
     // todo: bind label values
+
+    const firstnameLabelElement = divElement.querySelector("label[for=firstname]");
+    person.firstname.getObs(LABEL).onChange(label => firstnameLabelElement.innerText = label);
+
+    const lastnameInputElement = divElement.querySelector("#lastname");
+    bindTextInput(person.lastname, lastnameInputElement);
 
     rootElement.firstChild.replaceWith(divElement); // react - style ;-)
 };
