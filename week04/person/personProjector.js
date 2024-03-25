@@ -20,9 +20,7 @@ const bindTextInput = (textAttr, inputElement) => {
 
     // todo: the label property should be shown as a pop-over on the text element.
 
-    textAttr.getObs(LABEL).onChange(
-        label => inputElement.setAttribute("title", label)
-    );
+    textAttr.getObs(LABEL).onChange(label => inputElement.setAttribute("title", label));
 
 };
 
@@ -81,16 +79,10 @@ const personListItemProjector = (masterController, selectionController, rootElem
     rootElement.appendChild(deleteButton);
     rootElement.appendChild(firstnameInputElement);
     rootElement.appendChild(lastnameInputElement);
+
     // todo: what to do with selection when person was added?
 
-    masterController.onPersonAdd((addedPerson, addMe) => {
-
-
-        selectionController.setSelectedPerson(addedPerson);
-
-        addMe();
-    });
-
+    selectionController.setSelectedPerson(person);
 
 
 };
